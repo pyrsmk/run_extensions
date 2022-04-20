@@ -37,8 +37,7 @@ def gid
 end
 
 task :console, "Run a console inside the container" do
-  call :docker_start
-  call :exec, docker_shell_name
+  call :exec, docker_shell_name, interactive: true
 end
 
 task :docker_build, "Build the container" do
@@ -74,12 +73,12 @@ task :docker_start, "Start the dev container" do
   end
 end
 
-task :docker_stop, "Stop the dev container" do
+task :docker_stop, "Stop the dev container" do |*arguments, **options|
   if docker_container_names.size != 0
     puts
     docker_container_names.each do |name|
       puts "Stopping #{name}...".yellow
-      `docker stop #{name}`
+      `docker stop #{name} #{options[:immediate] == true ? "-t 0" : ""}`
     end
   end
 end
@@ -92,35 +91,20 @@ task :docker_fix_rights, "Fix right issues" do
   `sudo chown -R #{uid}:#{gid} .`
 end
 
-task :exec, "Execute a command inside the container" do |*arguments|
+task :exec, "Execute a command inside the container" do |*arguments, **options|
   if arguments.size < 1
     puts "Too few arguments passed".red
     next
   end
-  shell "docker exec -it -w /app #{docker_container_name} #{arguments.join(" ")}"
-  puts
-end
-
-task :exec_as, "Execute a command inside the container as a user" do |*arguments|
-  if arguments.size < 2
-    puts "Too few arguments passed".red
-    next
+  call :docker_start
+  command = arguments.join(" ")
+  command = options[:as].nil? ? command : "su -c '#{command}' #{options[:as]}"
+  interactive = options[:interactive].nil? ? "" : "-i"
+  command = "docker exec -t #{interactive} -w /app #{docker_container_name} #{command}"
+  if options[:silent] === true
+    `#{command}`
+  else
+    shell command
+    puts
   end
-  shell "docker exec -it -w /app #{docker_container_name} su -c '#{arguments[1..].join(" ")}' #{arguments[0]}"
-end
-
-task :silent_exec, "Execute a command inside the container (silent)" do |*arguments|
-  if arguments.size < 1
-    puts "Too few arguments passed".red
-    next
-  end
-  `docker exec -it -w /app #{docker_container_name} #{arguments.join(" ")}`
-end
-
-task :silent_exec_as, "Execute a command inside the container as a user (silent)" do |*arguments|
-  if arguments.size < 2
-    puts "Too few arguments passed".red
-    next
-  end
-  `docker exec -it -w /app #{docker_container_name} su -c '#{arguments[1..].join(" ")}' #{arguments[0]}`
 end

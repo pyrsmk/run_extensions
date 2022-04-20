@@ -14,14 +14,15 @@ This extension aims to ease Docker development container management with the fol
 
 - `console`: opens a Ash shell session inside the container (the official shell for Alpine Linux); if you want to spawn a different shell, you can define a `docker_shell_name` function and return the path to the needed shell command
 - `docker_start`: starts the container if not yet started; this task runs `docker_build` automatically
-- `docker_stop`: stops the container if not stopped
+- `docker_stop`: stops the container if not stopped; it also accepts an additional parameter:
+  - `immediate: true`: stops the container immediately
 - `docker_fix_rights`: fix owner permissions in the current directory recursively (useful when your commands are run by root in your container, which is often the case)
 - `docker_build`: builds the image if it does not exist yet
 - `docker_update`: update the image version and rebuilds it
-- `exec <command>`: execute an arbitrary command inside the container
-- `exec_as <user> <command>`: execute an arbitrary command inside the container with the specified user
-- `silent_exec <command>`: execute an arbitrary command inside the container (silent)
-- `silent_exec_as <user> <command>`: execute an arbitrary command inside the container with the specified user (silent)
+- `exec <command>`: execute an arbitrary command inside the container (note that `docker_start` is automatically called before running the command); you can also pass additional options:
+  - `as: "some_user"`: run the command as a user in the container
+  - `interactive: true`: keep STDIN open for the command (useful if it spawns a shell for example)
+  - `silent: true`: the same as running the command with backticks instead of `shell()`
 
 To use theses tasks, you'll need to define these functions in your Runfile:
 
