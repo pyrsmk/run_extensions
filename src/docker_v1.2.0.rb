@@ -108,3 +108,7 @@ task :exec, "Execute a command inside the container" do |*arguments, **options|
     puts
   end
 end
+
+task :exec_as, "Execute a command inside the container as another user" do |user, *arguments|
+  call :exec, *arguments, as: user
+end
