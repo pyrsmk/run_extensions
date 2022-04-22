@@ -20,7 +20,7 @@ def docker_container_name
   docker_container_names[0]
 end
 
-def docker_shell_name
+def docker_shell_command
   "/bin/ash"
 end
 
@@ -37,7 +37,7 @@ def gid
 end
 
 task :console, "Run a console inside the container" do
-  call :exec, docker_shell_name, interactive: true
+  call :exec, docker_shell_command, interactive: true
 end
 
 task :docker_build, "Build the container" do
