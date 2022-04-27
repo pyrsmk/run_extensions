@@ -58,7 +58,7 @@ task :docker_update, "Update the version and rebuild the container" do
   begin
     shell "docker build -t #{docker_image_name} docker"
     puts
-    puts "Be careful to run `docker system prune` regularly when working ".yellow +
+    puts "Be careful to run `docker system prune -a -f` regularly when working ".yellow +
          "on a Dockerfile image because the Docker cache can grow exponentially.".yellow
   rescue
     next if old_version.nil?
