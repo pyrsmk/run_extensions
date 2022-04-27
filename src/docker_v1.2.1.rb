@@ -17,7 +17,9 @@ def docker_container_names
 end
 
 def docker_container_name
-  docker_container_names[0]
+  name = docker_container_names[0]
+  raise "Cannot extract container name, container is not running" if name.nil?
+  name
 end
 
 def docker_shell_command
