@@ -81,7 +81,7 @@ task :docker_stop, "Stop the dev container" do |*arguments, **options|
     puts
     docker_container_names.each do |name|
       puts "Stopping #{name}...".yellow
-      `docker stop #{name} #{options[:immediate] == true ? "-t 0" : ""}`
+      `docker stop #{name} #{options[:immediate] == false ? "" : "-t 0"}`
     end
   end
 end
