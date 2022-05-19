@@ -13,7 +13,15 @@ def format_image_name(image_name)
 end
 
 def docker_container_names
-  `docker ps -q --filter ancestor=#{docker_image_name}`.split("\n")
+  container_names = []
+  `docker ps --format '{{.Image}}'`.split("\n").each do |name|
+    if name.include?(image_name)
+      container_names.concat(
+        `docker ps -q --filter ancestor=#{name}`.split("\n")
+      )
+    end
+  end
+  container_names
 end
 
 def docker_container_name
