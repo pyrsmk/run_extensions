@@ -7,9 +7,9 @@ if !Dir.exists? DEVELOPMENT_PATH
   FileUtils.mkpath DEVELOPMENT_PATH
 end
 
-def format_image_name(image_name)
+def docker_image_name_with_version
   return "" if !File.exists? VERSION_PATH
-  "#{image_name}:#{File.read(VERSION_PATH).chomp}"
+  "#{docker_image_name}:#{File.read(VERSION_PATH).chomp}"
 end
 
 def docker_container_names
@@ -33,7 +33,7 @@ def docker_shell_command
 end
 
 def docker_start_command
-  "docker run -d -v #{Dir.pwd}:/app -t #{docker_image_name}"
+  "docker run -d -v #{Dir.pwd}:/app -t #{docker_image_name_with_version}"
 end
 
 def uid
@@ -53,8 +53,8 @@ task :docker_build, "Build the container" do
     call :docker_update
     next
   end
-  if !system("docker image inspect #{docker_image_name} >/dev/null")
-    shell "docker build -t #{docker_image_name} docker"
+  if !system("docker image inspect #{docker_image_name_with_version} >/dev/null")
+    shell "docker build -t #{docker_image_name_with_version} docker"
     puts
   end
 end
@@ -64,7 +64,7 @@ task :docker_update, "Update the version and rebuild the container" do
   old_version = File.read(VERSION_PATH).chomp if File.exists? VERSION_PATH
   File.write(VERSION_PATH, SecureRandom.hex)
   begin
-    shell "docker build -t #{docker_image_name} docker"
+    shell "docker build -t #{docker_image_name_with_version} docker"
     puts
     puts "Be careful to run `docker system prune -a -f` regularly when working ".yellow +
          "on a Dockerfile image because the Docker cache can grow exponentially.".yellow
@@ -85,7 +85,7 @@ task :docker_start, "Start the dev container" do
 end
 
 task :docker_stop, "Stop the dev container" do |*arguments, **options|
-  if docker_container_names.size != 0
+  if docker_container_names.size > 0
     puts
     docker_container_names.each do |name|
       puts "Stopping #{name}...".yellow

@@ -26,17 +26,16 @@ This extension aims to ease Docker development container management with the fol
 
 To use theses tasks, you'll need to define these functions in your Runfile:
 
-- `docker_image_name`: returns the name you want for your image; the current version of the image will be appended to that name and the full image name will be available from `image_name` function
-- `docker_start_command`: returns the command to use to start the container (default: `shell "docker run -d -v #{Dir.pwd}:/app -t #{docker_image_name}"`)
+- `docker_image_name`: returns the name you want for your image
+- `docker_image_name_with_version`: same as above but the computed version of the image will be appended
+- `docker_start_command`: returns the command to use to start the container (default: `"docker run -d -v #{Dir.pwd}:/app -t #{docker_image_name_with_version}"`)
 - `docker_shell_name`: returns the shell path you want to use when running `run console` (default: `/bin/ash`)
 
 For example:
 
 ```rb
 def docker_image_name
-  # Wraping the image name with `format_image_name` is mandatory. It appends the current
-  # version number of the image and process some verifications beforehand.
-  format_image_name("namespace/project")
+  "namespace/project"
 end
 
 def docker_start_command
